@@ -1,6 +1,6 @@
 #!/bin/bash
 #variaveis
-serial=§ (data +%s)
+serial=$(data + %s)
 acl internal-network {
         192.168.1.0/24;
 };
@@ -79,4 +79,5 @@ options {
 ;; define each IP address of a hostname
 servidor1    IN  A       192.168.1.184
 www     	 IN  A       192.168.1.195
+
 END
