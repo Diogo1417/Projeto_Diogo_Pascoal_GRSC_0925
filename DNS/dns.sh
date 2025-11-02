@@ -99,3 +99,17 @@ END
 195             IN  PTR     www.empresa.local.
  
 END
+
+echo "Definir permissões nos Ficheiros.."
+sudo chown named:named /var/named/empresa.local.lan
+sudo chown named:named /var/named/1.168.192.db
+
+echo "Definir permissões na FireWall.."
+sudo firewall-cmd --add-service=dns --permanent
+sudo firewall-cmd --reload
+
+echo "Iniciar o serviço DNS.."
+sudo systemctl enable --now named
+sudo systemctl start named
+sudo systemctl status named
+
