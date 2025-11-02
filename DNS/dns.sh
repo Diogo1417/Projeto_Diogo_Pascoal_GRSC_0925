@@ -77,12 +77,12 @@ END
         ;; define Name Server
         IN  NS      servidor1.empresa.local.
         ;; define Name Server's IP address
-        IN  A       192.168.1.192
+        IN  A       192.168.1.193
         ;; define Mail Exchanger Server
         IN  MX 10   servidor1.empresa.local.
 
 ;; define each IP address of a hostname
-servidor1    IN  A       192.168.1.192
+servidor1    IN  A       192.168.1.193
 www     	 IN  A       192.168.1.195
 END
 	sudo tee /var/named/empresa.local.lan > /dev/null << END
@@ -112,4 +112,5 @@ echo "Iniciar o serviço DNS.."
 sudo systemctl enable --now named
 sudo systemctl start named
 sudo systemctl status named
+
 
