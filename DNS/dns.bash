@@ -2,7 +2,7 @@
 #variaveis
 serial=§ (data +%s)
 acl internal-network {
-        192.168.20.10/24;
+        192.168.20.0/24;
 };
 
 options {
@@ -79,4 +79,5 @@ options {
 ;; define each IP address of a hostname
 servidor1    IN  A       192.168.180.230
 www     IN  A       10.0.0.31
+
 END
