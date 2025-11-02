@@ -3,6 +3,10 @@
 echo "A instalar o dns.."
 sudo dnf -y install bind bind-utils
 
+nmcli
+read -p "Introduza o ip que está inserido na interface ens192: " pagante
+read -p "Desse ip inserido, insira o ultimo octeto: " octeto
+
 echo "A configurar os arquivos.."
 sudo tee /etc/named.conf > /dev/null << END
 acl internal-network {
@@ -74,12 +78,12 @@ END
         ;; define Name Server
         IN  NS      servidor1.empresa.local.
         ;; define Name Server's IP address
-        IN  A       192.168.1.192
+        IN  A       $pagante
         ;; define Mail Exchanger Server
         IN  MX 10   servidor1.empresa.local.
 
 ;; define each IP address of a hostname
-servidor1    IN  A       192.168.1.192
+servidor1    IN  A       $pagante
 www     	 IN  A       192.168.1.195
 END
 	sudo tee /var/named/empresa.local.lan > /dev/null << END
@@ -92,7 +96,7 @@ END
         86400       ; Minimum TTL
 )
 @               IN  NS      servidor1.empresa.local.
-192        		IN  PTR     servidor1.empresa.local.
+$octeto        	IN  PTR     servidor1.empresa.local.
 195             IN  PTR     www.empresa.local.
  
 END
