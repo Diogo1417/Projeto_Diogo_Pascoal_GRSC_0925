@@ -27,13 +27,10 @@ options {
         // add secondary DNS servers if it exist
         allow-transfer  { localhost; };
 
-        .....
-        .....
-
         recursion yes;
 		
 		forward only;
-		forwarders { 8.8.8.8; 8.8.4.4 };
+		forwarders { 8.8.8.8; 8.8.4.4; };
 	};
 
 	logging {
@@ -77,12 +74,12 @@ END
         ;; define Name Server
         IN  NS      servidor1.empresa.local.
         ;; define Name Server's IP address
-        IN  A       192.168.1.193
+        IN  A       192.168.1.192
         ;; define Mail Exchanger Server
         IN  MX 10   servidor1.empresa.local.
 
 ;; define each IP address of a hostname
-servidor1    IN  A       192.168.1.193
+servidor1    IN  A       192.168.1.192
 www     	 IN  A       192.168.1.195
 END
 	sudo tee /var/named/empresa.local.lan > /dev/null << END
@@ -112,5 +109,4 @@ echo "Iniciar o serviço DNS.."
 sudo systemctl enable --now named
 sudo systemctl start named
 sudo systemctl status named
-
 
