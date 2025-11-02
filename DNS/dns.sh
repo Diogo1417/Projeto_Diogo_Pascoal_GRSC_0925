@@ -1,6 +1,10 @@
 #!/bin/bash
 #variaveis
-serial=$(data + %s)
+echo "A instalar o dns.."
+sudo dnf -y install bind bind-utils
+
+echo "A configurar os arquivos.."
+sudo tee /etc/named.conf > /dev/null << END
 acl internal-network {
         192.168.1.0/24;
 };
@@ -53,17 +57,18 @@ options {
 			file "empresa.local.lan";
 			allow-update { none; };
 	};
-	zone "180.168.192.in-addr.arpa" IN {
+	zone "1.168.192.in-addr.arpa" IN {
 			type primary;
 			file "1.168.192.db";
 			allow-update { none; };
 	};
-	sudo cat /var/named/empresa.local << END
+END
+	sudo tee /var/named/empresa.local.lan > /dev/null << END 
 	$TTL 86400
-@   IN  SOA     dlp.srv.world. root.srv.world. (
+@   IN  SOA     servidor1.empresa.local. root.empresa.local. (
         ;; any numerical values are OK for serial number but
         ;; recommendation is [YYYYMMDDnn] (update date + number)
-        1761831619  ;Serial
+        1762118665  ;Serial
         3600        ;Refresh
         1800        ;Retry
         604800      ;Expire
@@ -72,12 +77,25 @@ options {
         ;; define Name Server
         IN  NS      servidor1.empresa.local.
         ;; define Name Server's IP address
-        IN  A       192.168.1.184
+        IN  A       192.168.1.192
         ;; define Mail Exchanger Server
         IN  MX 10   servidor1.empresa.local.
 
 ;; define each IP address of a hostname
-servidor1    IN  A       192.168.1.184
+servidor1    IN  A       192.168.1.192
 www     	 IN  A       192.168.1.195
-
+END
+	sudo tee /var/named/empresa.local.lan > /dev/null << END
+\$TTL 86400
+@   IN  SOA     servidor1.empresa.local. root.empresa.local. (
+        1762118665  ; Serial
+        3600        ; Refresh
+        1800        ; Retry
+        604800      ; Expire
+        86400       ; Minimum TTL
+)
+@               IN  NS      servidor1.empresa.local.
+192        		IN  PTR     servidor1.empresa.local.
+195             IN  PTR     www.empresa.local.
+ 
 END
