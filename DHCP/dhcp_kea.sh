@@ -134,4 +134,5 @@ sudo firewall-cmd --reload
 echo " A verificar o status do DHCP..."
 sudo systemctl status kea-dhcp4
 
+
 echo "Instalação concluida e configuração feita com sucesso! :)"
