@@ -1,69 +1,81 @@
-#!bin/bash
-lan = ""
+#!/bin/bash
+lan=""
 
 echo "A Instalar o dhcp..."
+# Usar 'dnf install -y kea' para evitar a instalação do isc-dhcp-server
 sudo dnf install -y kea
 
 echo "Insira a interface LAN.."
 read lan
 
-#Colocar o ip estatico
-echo "A colocar o ip do server como estatico..."
-sudo nmcli connection modify $lan ipv4.addresses 192.168.180.254/24
-sudo nmcli connection modify $lan ipv4.method manual #buscar nmcli
+# Colocar o ip estático
+echo "A colocar o ip do server como estático..."
+# **Corrigir IP na interface para o correto 192.168.180.254/24**
+# As imagens de erro mostram que o script tentou 192.168.180.254/24 e 192.168.180.236/24,
+# mas o IP do servidor é declarado como 192.168.180.254, vamos usar este.
+sudo nmcli connection modify "$lan" ipv4.addresses 192.168.180.254/24
+sudo nmcli connection modify "$lan" ipv4.method manual
+sudo nmcli connection up "$lan" # Adicionado para garantir que a interface sobe com o novo IP
 
-#Pedir de ips para utilizar
-echo "Introduz uma gama de ips que  pertençam a mesma subnet do servidor dhcp 192.168.1.0/24:"
-echo "Atenção!!!! Não utilizar uma gama de IPS onde o ip do servidor ( 192.168.1.184/24 ) nem o ips do gateway (192.168.1.254) estejam presentes!!"
-read -p " Ip de inicío :" ip_inicio
-read -p " ip final:" ip_fim
-
-#verificar o intervalo da gama de ips
+# Definir variáveis de sub-rede
 subnet="^192\.168\.180\."
 mask="255.255.255.0"
 subrede="192.168.180.0/24"
 ip_servidor="192.168.180.254"
 
-if [[ $ip_inicio =~ $subnet ]] && [[ $ip_fim =~ $subnet ]] && [[ $ip_inicio != $ip_servidor ]] &&  [[ $ip_fim != $ip_servidor ]]; then
-echo " IPs válidos na subnet do servidor! :)"
+# Pedir de ips para utilizar
+echo "Introduz uma gama de ips que pertençam à mesma subnet do servidor dhcp 192.168.180.0/24:"
+echo "Atenção!!!! Não utilizar o ip do servidor ($ip_servidor) ou o ip do gateway!"
+read -p " Ip de início (ex: 192.168.180.10): " ip_inicio
+read -p " Ip final (ex: 192.168.180.250): " ip_fim
+
+# verificar o intervalo da gama de ips
+if [[ $ip_inicio =~ $subnet ]] && [[ $ip_fim =~ $subnet ]] && [[ $ip_inicio != $ip_servidor ]] && [[ $ip_fim != $ip_servidor ]]; then
+    echo " IPs válidos na subnet do servidor! :)"
 else
-echo " ERRO 232: Os IPs estão na subnet errado ou algum IP está com o mesmo ip do servidor. A fechar o programa..."
-exit 1
+    echo " ERRO 232: Os IPs estão na subnet errada ou algum IP é igual ao IP do servidor. A fechar o programa..."
+    exit 1
 fi
 
 # Ip default gateway
 echo " Introduz o IP do default-gateway"
-read -p "gateway:" ip_gateway
+read -p "gateway: " ip_gateway
 
-#verificar gateway
-if [[ $ip_gateway =~ $subnet ]];then
-echo " O default-gateway válido na subrede! :)"
+# verificar gateway
+if [[ $ip_gateway =~ $subnet ]] && [[ $ip_gateway != $ip_servidor ]]; then
+    echo " O default-gateway válido na subrede! :)"
 else
-echo "ERRO 232: O default-gateway não está na mesma subrede. A Fechar o programa..."
-exit 1
+    echo "ERRO 232: O default-gateway não está na mesma subrede ou é igual ao IP do servidor. A Fechar o programa..."
+    exit 1
 fi
 
-#receber o dns
+# receber o dns
 echo " Introduza o ip do DNS"
-read -p " DNS:" dns
-echo "$ip_inicio"
+read -p " DNS (ex: 8.8.8.8): " dns
+echo "DNS escolhido: $dns"
 
-#backup
+# backup
 echo "Criação de um arquivo .org de modo a deixar mais fluida a leitura do ficheiro de configuração..."
-sudo mv /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.org
+# Adicionar verificação para evitar erro se o .conf não existir (primeira execução)
+if [ -f /etc/kea/kea-dhcp4.conf ]; then
+    sudo mv /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.org
+fi
 
-#Variavel do arquivo de DHCP
+# Variável do arquivo de DHCP
 dhcp_config="/etc/kea/kea-dhcp4.conf"
 echo "A aplicar as configurações..."
 
-dns= $dns
-subrede= $subrede
-ip_inicio= $ip_inicio
-ip_fim= $ip_fim
-ip_gateway= $ip_gateway
+# Os valores das variáveis já estão definidos, esta parte é redundante:
+# dns= $dns
+# subrede= $subrede
+# ip_inicio= $ip_inicio
+# ip_fim= $ip_fim
+# ip_gateway= $ip_gateway
 
-echo "A aplicar as configurações..."
-sudo tee /etc/kea/kea-dhcp4.conf > /dev/null << END
+echo "A criar todas as configurações..."
+# Corrigido: A sintaxe correta para a pool no Kea é: "pool": "$ip_inicio-$ip_fim" (sem espaços)
+# Também corrigi o nome do logger de kea-dhcp4 para kea-dhcp4.log, que é o padrão.
+sudo tee "$dhcp_config" > /dev/null << END
 {
   "Dhcp4": {
     "interfaces-config": {
@@ -98,7 +110,7 @@ sudo tee /etc/kea/kea-dhcp4.conf > /dev/null << END
       {
         "id": 1,
         "subnet": "$subrede",
-        "pools": [ { "pool": "$ip_inicio - $ip_fim" } ],
+        "pools": [ { "pool": "$ip_inicio-$ip_fim" } ],
         "option-data": [
           {
             "name": "routers",
@@ -109,7 +121,7 @@ sudo tee /etc/kea/kea-dhcp4.conf > /dev/null << END
     ],
     "loggers": [
       {
-        "name": "kea-dhcp4",
+        "name": "kea-dhcp4.log",
         "output-options": [
           {
             "output": "/var/log/kea/kea-dhcp4.log"
@@ -123,19 +135,20 @@ sudo tee /etc/kea/kea-dhcp4.conf > /dev/null << END
 }
 END
 
-
-#Inicio DHCP
+# Início DHCP
 echo " A iniciar todas as configurações..."
+sudo systemctl daemon-reload # Adicionado para garantir que o systemd reconhece mudanças
 sudo systemctl enable --now kea-dhcp4
 
-#ativar serviços firewall
+# ativar serviços firewall
 echo " Configurar a firewall..."
-sudo firewall-cmd --add-service=dhcp
-sudo firewall-cmd --runtime-to-permanent
+# O serviço correto para DHCP no firewall geralmente é 'dhcp' ou 'dhcpv4'
+# De acordo com as imagens, 'dhcp' funcionou, vamos mantê-lo.
+sudo firewall-cmd --add-service=dhcp --permanent
 sudo firewall-cmd --reload
 
-#veriicar os status
+# verificar o status
 echo " A verificar o status do DHCP..."
 sudo systemctl status kea-dhcp4
 
-echo "Instalação concluida e configuração feita com sucesso! :)"
+echo "Instalação concluída e configuração feita com sucesso! :)"
