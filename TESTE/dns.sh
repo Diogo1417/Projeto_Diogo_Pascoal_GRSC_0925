@@ -10,7 +10,7 @@ read -p "Desse ip inserido, insira o ultimo octeto: " octeto
 echo "A configurar os arquivos.."
 sudo tee /etc/named.conf > /dev/null << END
 acl internal-network {
-        192.168.1.0/24;
+        192.168.180.0/24;
 };
 
 options {
@@ -58,9 +58,9 @@ options {
 			file "empresa.local.lan";
 			allow-update { none; };
 	};
-	zone "1.168.192.in-addr.arpa" IN {
+	zone "180.168.192.in-addr.arpa" IN {
 			type primary;
-			file "1.168.192.db";
+			file "180.168.192.db";
 			allow-update { none; };
 	};
 END
@@ -84,7 +84,7 @@ END
 
 ;; define each IP address of a hostname
 servidor1    IN  A       $pagante
-www     	 IN  A       192.168.1.195
+www     	 IN  A       192.168.180.195
 END
 	sudo tee /var/named/empresa.local.lan > /dev/null << END
 \$TTL 86400
@@ -103,7 +103,7 @@ END
 
 echo "Definir permissões nos Ficheiros.."
 sudo chown named:named /var/named/empresa.local.lan
-sudo chown named:named /var/named/1.168.192.db
+sudo chown named:named /var/named/180.168.192.db
 
 echo "Definir permissões na FireWall.."
 sudo firewall-cmd --add-service=dns --permanent

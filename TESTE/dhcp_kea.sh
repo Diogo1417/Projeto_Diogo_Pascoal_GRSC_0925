@@ -9,7 +9,7 @@ read lan
 
 #Colocar o ip estatico
 echo "A colocar o ip do server como estatico..."
-sudo nmcli connection modify $lan ipv4.addresses 192.168.1.254/24
+sudo nmcli connection modify $lan ipv4.addresses 192.168.180.254/24
 sudo nmcli connection modify $lan ipv4.method manual #buscar nmcli
 
 #Pedir de ips para utilizar
@@ -19,10 +19,10 @@ read -p " Ip de inicío :" ip_inicio
 read -p " ip final:" ip_fim
 
 #verificar o intervalo da gama de ips
-subnet="^192\.168\.1\."
+subnet="^192\.168\.180\."
 mask="255.255.255.0"
-subrede="192.168.1.0/24"
-ip_servidor="192.168.1.254"
+subrede="192.168.180.0/24"
+ip_servidor="192.168.180.254"
 
 if [[ $ip_inicio =~ $subnet ]] && [[ $ip_fim =~ $subnet ]] && [[ $ip_inicio != $ip_servidor ]] &&  [[ $ip_fim != $ip_servidor ]]; then
 echo " IPs válidos na subnet do servidor! :)"
