@@ -25,7 +25,7 @@ done
 echo "A colocar o ip do server como estático..."
 # **Corrigir IP na interface para o correto 192.168.180.254/24**
 # mas o IP do servidor é declarado como 192.168.180.254, vamos usar este.
-sudo nmcli connection modify "$lan" ipv4.addresses $ipserver/24
+sudo nmcli connection modify "$lan" ipv4.addresses 192.168.180.$ipserver/24
 sudo nmcli connection modify "$lan" ipv4.method manual
 sudo nmcli connection up "$lan" # Adicionado para garantir que a interface sobe com o novo IP
 
@@ -100,18 +100,18 @@ sudo tee "$dhcp_config" > /dev/null << END
       {
         "id": 1,
         "subnet": "$subrede",
-        "pools": [ { "pool": "$ip_inicio-$ip_fim" } ],
+        "pools": [ { "pool": "$ip_inicio - $ip_fim" } ],
         "option-data": [
           {
             "name": "routers",
-            "data": "$ipserver"
+            "data": "$ip_servidor"
           }
         ]
       }
     ],
     "loggers": [
       {
-        "name": "kea-dhcp4.log",
+        "name": "kea-dhcp4",
         "output-options": [
           {
             "output": "/var/log/kea/kea-dhcp4.log"
