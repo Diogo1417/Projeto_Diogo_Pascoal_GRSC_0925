@@ -1,22 +1,55 @@
 #!/bin/bash
+echo "--- Configuração Interativa do Servidor DNS (BIND) ---"
+
+# --- VARIAVEIS INICIAIS ---
+lan=""
+ipserver_suffix=""
+ip_servidor=""
+# Sub-rede baseada no seu pedido (pode ser ajustada manualmente aqui se necessário)
+subrede_base="192.168.180" 
+sub_rede="${subrede_base}.0/24" # A sub-rede completa para o ACL
+zona_reversa="180.168.192" # Zona reversa correta para 192.168.180.x
+
+# --- PASSO 1: OBTENÇÃO E VALIDAÇÃO DAS VARIÁVEIS ---
+
+# 1. Pedir a Interface LAN
+nmcli device show # Mostrar interfaces para o usuário
+echo "Insira a interface LAN onde deseja configurar o IP estático (ex: ens192):"
+read lan
+
+# 2. Pedir e Validar o Sufixo do IP do Servidor
+while true; do
+	echo "O IP do servidor será: .$subrede_base.1 ou .$subrede_base.254"
+	read ipserver_suffix
+	if 	[ "$ipserver_suffix" = "1" ] || [ "$ipserver_suffix" = "254" ]; then
+        ip_servidor="$subrede_base.$ipserver_suffix"
+		octeto="$ipserver_suffix"
+		ip_www="$subrede_base.195" # IP de exemplo para o www
+		echo "IP do Servidor DNS: $ip_servidor"
+		break
+	else
+		echo "Valor inválido, insira 1 ou 254"
+	fi
+done
+
+# --- PASSO 2: INSTALAÇÃO E CONFIGURAÇÃO DE REDE ---
 echo "A instalar o dns (bind).."
 sudo dnf -y install bind bind-utils
 
-# Variáveis do ambiente, confirmadas para 192.168.180.1
-ip_servidor="192.168.180.1" 
-octeto="1" # Último octeto do seu IP
-ip_www="192.168.180.195" # Exemplo de um IP para o www na sua rede
-zona_reversa="180.168.192" # Correto para 192.168.180.x
+echo "A configurar o IP estático para $ip_servidor na interface $lan..."
+# Configura o endereço, máscara (/24) e define o método como manual (estático)
+sudo nmcli connection modify "$lan" ipv4.addresses "$ip_servidor/24"
+sudo nmcli connection modify "$lan" ipv4.method manual
+sudo nmcli connection up "$lan" 
+echo "Interface $lan configurada com IP estático."
 
-echo "IP do Servidor: $ip_servidor"
-echo "Último Octeto: $octeto"
-echo "A configurar os arquivos..."
+# --- PASSO 3: CONFIGURAÇÃO DOS FICHEIROS DNS ---
+echo "A configurar os arquivos DNS..."
 
-# 1. Criação do /etc/named.conf (Configuração Principal)
-# Remove named.rfc1912.zones para evitar conflitos e usa includes específicos
+# 1. Criação do /etc/named.conf (Usa $sub_rede e $zona_reversa)
 sudo tee /etc/named.conf > /dev/null << END
 acl internal-network {
-    192.168.180.0/24;
+    $sub_rede;
 };
 
 options {
@@ -56,7 +89,7 @@ zone "empresa.local" IN {
     file "empresa.local.lan";
     allow-update { none; };
 };
-// Zona Reversa - CORRETA para 192.168.180.x
+// Zona Reversa (USA VARIÁVEL)
 zone "${zona_reversa}.in-addr.arpa" IN {
     type primary;
     file "${zona_reversa}.db";
@@ -64,7 +97,7 @@ zone "${zona_reversa}.in-addr.arpa" IN {
 };
 END
 
-# 2. Criação do /etc/named.loopback (Necessário para a linha de include acima)
+# 2. Criação do /etc/named.loopback (Sem mudanças)
 sudo tee /etc/named.loopback > /dev/null << END
 zone "localhost" IN {
     type master;
@@ -83,7 +116,7 @@ zone "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa" IN
 };
 END
 
-# 3. Criação da Zona Direta (empresa.local.lan) - Sintaxe limpa
+# 3. Criação da Zona Direta (empresa.local.lan)
 sudo tee /var/named/empresa.local.lan > /dev/null << END
 \$TTL 86400
 @   IN  SOA     servidor1.empresa.local. root.empresa.local. (
@@ -101,7 +134,7 @@ servidor1       IN  A        $ip_servidor
 www             IN  A        $ip_www
 END
 
-# 4. Criação da Zona Reversa (180.168.192.db) - Sintaxe limpa
+# 4. Criação da Zona Reversa ($zona_reversa.db)
 sudo tee /var/named/${zona_reversa}.db > /dev/null << END
 \$TTL 86400
 @   IN  SOA     servidor1.empresa.local. root.empresa.local. (
@@ -116,8 +149,7 @@ $octeto         IN  PTR      servidor1.empresa.local.
 195             IN  PTR      www.empresa.local.
 END
 
-# 5. Criação dos ficheiros de Loopback que estavam a faltar em /var/named/
-# CORRIGE O ERRO "file not found"
+# 5. Criação dos ficheiros de Loopback em /var/named/ (para evitar erro "file not found")
 sudo tee /var/named/named.localhost > /dev/null << END
 \$TTL 1D
 @       IN SOA  @ root ( 1 1H 15M 1W 1D )
@@ -153,6 +185,7 @@ sudo chown named:named /var/named/named.loopback
 sudo chown named:named /var/named/named.ip6.local
 
 
+# --- PASSO 4: FIREWALL E SERVIÇO ---
 echo "Definir permissões na FireWall..."
 sudo firewall-cmd --add-service=dns --permanent
 sudo firewall-cmd --reload
