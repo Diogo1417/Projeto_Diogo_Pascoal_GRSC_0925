@@ -2,7 +2,7 @@
 echo "A instalar o dns (bind).."
 sudo dnf -y install bind bind-utils
 
-# Variáveis do ambiente
+# Variáveis do ambiente, confirmadas para 192.168.180.1
 ip_servidor="192.168.180.1" 
 octeto="1" # Último octeto do seu IP
 ip_www="192.168.180.195" # Exemplo de um IP para o www na sua rede
@@ -13,7 +13,7 @@ echo "Último Octeto: $octeto"
 echo "A configurar os arquivos..."
 
 # 1. Criação do /etc/named.conf (Configuração Principal)
-# Removida a inclusão de named.rfc1912.zones para evitar conflitos de zona
+# Remove named.rfc1912.zones para evitar conflitos e usa includes específicos
 sudo tee /etc/named.conf > /dev/null << END
 acl internal-network {
     192.168.180.0/24;
@@ -48,7 +48,7 @@ zone "." IN {
 };
 
 include "/etc/named.root.key";
-include "/etc/named.loopback"; # Adicionar o loopback para boa prática
+include "/etc/named.loopback";
 
 // Zona Direta
 zone "empresa.local" IN {
@@ -64,7 +64,7 @@ zone "${zona_reversa}.in-addr.arpa" IN {
 };
 END
 
-# Criação de um named.loopback simples (boa prática)
+# 2. Criação do /etc/named.loopback (Necessário para a linha de include acima)
 sudo tee /etc/named.loopback > /dev/null << END
 zone "localhost" IN {
     type master;
@@ -83,7 +83,7 @@ zone "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.ip6.arpa" IN
 };
 END
 
-# 2. Criação da Zona Direta (empresa.local.lan) - Sintaxe limpa
+# 3. Criação da Zona Direta (empresa.local.lan) - Sintaxe limpa
 sudo tee /var/named/empresa.local.lan > /dev/null << END
 \$TTL 86400
 @   IN  SOA     servidor1.empresa.local. root.empresa.local. (
@@ -101,7 +101,7 @@ servidor1       IN  A        $ip_servidor
 www             IN  A        $ip_www
 END
 
-# 3. Criação da Zona Reversa (180.168.192.db) - Sintaxe limpa
+# 4. Criação da Zona Reversa (180.168.192.db) - Sintaxe limpa
 sudo tee /var/named/${zona_reversa}.db > /dev/null << END
 \$TTL 86400
 @   IN  SOA     servidor1.empresa.local. root.empresa.local. (
@@ -116,19 +116,50 @@ $octeto         IN  PTR      servidor1.empresa.local.
 195             IN  PTR      www.empresa.local.
 END
 
+# 5. Criação dos ficheiros de Loopback que estavam a faltar em /var/named/
+# CORRIGE O ERRO "file not found"
+sudo tee /var/named/named.localhost > /dev/null << END
+\$TTL 1D
+@       IN SOA  @ root ( 1 1H 15M 1W 1D )
+        IN NS   localhost.
+        IN A    127.0.0.1
+END
+sudo tee /var/named/named.loopback > /dev/null << END
+\$TTL 1D
+@       IN SOA  @ root ( 1 1H 15M 1W 1D )
+        IN NS   localhost.
+1       IN PTR  localhost.
+END
+sudo tee /var/named/named.ip6.local > /dev/null << END
+\$TTL 1D
+@       IN SOA  @ root ( 1 1H 15M 1W 1D )
+        IN NS   localhost.
+        IN PTR  localhost.
+END
+
+
 echo "Definir permissões nos Ficheiros..."
-# Mantenha sempre o named como proprietário.
+# Permissões do sistema
+sudo chown root:named /etc/named.conf
+sudo chown root:named /etc/named.loopback
+
+# Permissões das zonas
 sudo chown named:named /var/named/empresa.local.lan
 sudo chown named:named /var/named/${zona_reversa}.db
-sudo chown named:named /etc/named.loopback
-sudo chown root:named /etc/named.conf # Mudar o dono do named.conf para root, como é padrão
+
+# Permissões dos ficheiros de loopback
+sudo chown named:named /var/named/named.localhost
+sudo chown named:named /var/named/named.loopback
+sudo chown named:named /var/named/named.ip6.local
+
 
 echo "Definir permissões na FireWall..."
 sudo firewall-cmd --add-service=dns --permanent
 sudo firewall-cmd --reload
 
 echo "Iniciar o serviço DNS..."
-# Adicionar verificação de sintaxe para debug
+
+# Verificações de sintaxe antes de tentar iniciar
 echo "Verificando sintaxe da zona direta..."
 sudo named-checkzone empresa.local /var/named/empresa.local.lan
 echo "Verificando sintaxe da zona reversa..."
