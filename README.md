@@ -38,7 +38,6 @@ Siga estas instruções para a correcta implementação e validação do ambient
       
       Se os scripts não estiverem a correr correctamente (devido a edição no Windows), use "dos2unix":
       
-      ```bash
       dos2unix nome_do_script.sh
       ```
   </tr>
