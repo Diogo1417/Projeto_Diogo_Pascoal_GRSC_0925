@@ -12,11 +12,11 @@ Este projecto apresenta scripts de Linux para a configuração e integração do
 
 ## Objectivos do Projecto
 
-O principal objectivo é implementar o **Dynamic DNS (DDNS)**, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de anfitriões (*hostnames*).
+O principal objectivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
 
 * **Automação:** Gestão automatizada de endereços IP via DHCP.
 * **Resolução:** Configuração robusta do DNS (BIND) para resolver nomes de rede.
-* **Sincronização:** Implementação do DDNS para actualização imediata dos registos.
+* **Sincronização:** Implementação do DNS para actualização imediata dos registos.
 
 ---
 
@@ -42,31 +42,3 @@ Siga estas instruções para a correcta implementação e validação do ambient
       ```
   </tr>
 </table>
-
----
-
-## Detalhes de Implementação
-
-<table>
-  <tr>
-    <td valign="top" width="65%">
-      <p>A funcionalidade de **DDNS** é a chave deste projecto. A imagem de apoio ao lado (se for um *screenshot* de uma consola ou ficheiro de configuração) pode ilustrar aspectos da implementação ou *logs* que confirmem o registo de um cliente.</p>
-      
-      <p>Consulte as pastas <code>DHCP/</code> e <code>DNS/</code> para aceder aos ficheiros de configuração detalhados.</p>
-    </td>
-    
-    <td valign="top" width="35%" align="right">
-      <img 
-        src="image_70143f.png" 
-        alt="Imagem de apoio sobre os detalhes de implementação do DDNS" 
-        width="250" 
-      />
-    </td>
-  </tr>
-</table>
-
----
-
-## Autor e Licença
-
-* **Autor:** Diogo Pascoal
