@@ -15,7 +15,7 @@ Este projecto apresenta scripts de linux para configuração e integração dos 
 
 ---
 
-## Objetivos do Projeto
+## 🎯 Objetivos do Projeto
 
 O principal objetivo é implementar o **Dynamic DNS (DDNS)**, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registro de nomes de host.
 
@@ -31,7 +31,11 @@ Siga estas instruções para a correta implementação e teste do ambiente.
 
 ### 1. Configuração de Rede (VM)
 
-O servidor deve possuir **dois adaptadores de rede**: um em modo **NAT** (Para acesso à Internet) e outro em modo **Bridged** (Para comunicação com clientes).
+É fundamental que o servidor Linux utilizado para rodar os serviços tenha a seguinte configuração de rede:
+
+* O servidor deve possuir **dois adaptadores de rede**:
+    * Um em modo **NAT** (Para acesso à Internet, atualizações e downloads).
+    * Outro em modo **LAN Segment** (Para comunicação direta e isolada com as máquinas clientes).
 
 ### 2. Execução de Scripts
 
