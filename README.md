@@ -10,8 +10,6 @@ Este projecto apresenta scripts de Linux para a configuração e integração do
     <br>
 </div>
 
-##Objetivos do Projecto
-
 O principal objectivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
 
 * **Automação:** Gestão automatizada de endereços IP via DHCP.
@@ -24,23 +22,14 @@ O principal objectivo é implementar o DNS, garantindo a sincronização automá
 
 ## Instruções de Utilização e Teste
 
-
-
 Siga estas instruções para a correcta implementação e validação do ambiente.
-
 
 
 <table>
 
   <tr>
 
-    <td valign="top" width="60%">
-
-      
-
       1. Configuração de Rede (VM)
-
-      
 
       O servidor deve possuir **dois adaptadores de rede**:
 
@@ -48,15 +37,11 @@ Siga estas instruções para a correcta implementação e validação do ambient
 
       * Outro em modo **LAN Segment** (Para comunicação directa e isolada com as máquinas clientes).
 
-      
-
-      **2**. Execução de Scripts
 
       
+      2. Execução de Scripts
 
       Se os scripts não estiverem a correr correctamente (devido a edição no Windows), use "dos2unix":
-
-      
 
       dos2unix nome_do_script.sh
 
