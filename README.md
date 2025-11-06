@@ -1,7 +1,7 @@
 # Projeto DHCP/DNS Integrado em Linux
 ## Projeto_Diogo_Pascoal_GRSC_0925
 
-Este projecto apresenta scripts de Linux para a configuração e integração dos serviços **DHCP** e **DNS**.
+Este projeto apresenta scripts de Linux para a configuração e integração dos serviços **DHCP** e **DNS**.
 
 ---
 
@@ -10,11 +10,11 @@ Este projecto apresenta scripts de Linux para a configuração e integração do
     <br>
 </div>
 
-O principal objectivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
+O principal objetivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
 
 * **Automação:** Gestão automatizada de endereços IP via DHCP.
 * **Resolução:** Configuração robusta do DNS (BIND) para resolver nomes de rede.
-* **Sincronização:** Implementação do DNS para actualização imediata dos registos.
+* **Sincronização:** Implementação do DNS para uma atualização imediata dos registos.
 
 ---
 
@@ -22,7 +22,7 @@ O principal objectivo é implementar o DNS, garantindo a sincronização automá
 
 ## Instruções de Utilização e Teste
 
-Siga estas instruções para a correcta implementação e validação do ambiente.
+Siga estas instruções para a correta implementação e validação do ambiente.
 
 
 <table>
@@ -35,13 +35,13 @@ Siga estas instruções para a correcta implementação e validação do ambient
 
       * Um em modo **NAT** (Para acesso à Internet).
 
-      * Outro em modo **LAN Segment** (Para comunicação directa e isolada com as máquinas clientes).
+      * Outro em modo **LAN Segment** (Para comunicação direta e isolada com as máquinas clientes).
 
 
       
       2. Execução de Scripts
 
-      Se os scripts não estiverem a correr correctamente (devido a edição no Windows), use "dos2unix":
+      Se os scripts não estiverem a correr corretamente (devido a edição no Windows), use "dos2unix":
 
       dos2unix nome_do_script.sh
 
