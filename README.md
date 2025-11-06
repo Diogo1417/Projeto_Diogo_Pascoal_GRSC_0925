@@ -15,7 +15,7 @@ Este projecto apresenta scripts de linux para configuração e integração dos 
 
 ---
 
-## 🎯 Objetivos do Projeto
+## Objetivos do Projeto
 
 O principal objetivo é implementar o **Dynamic DNS (DDNS)**, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registro de nomes de host.
 
