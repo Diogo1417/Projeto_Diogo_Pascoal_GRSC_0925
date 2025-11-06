@@ -1,7 +1,7 @@
-# Projecto DHCP/DNS Integrado em Linux
-## Projecto_Diogo_Pascoal_GRSC_0925
+# Projeto DHCP/DNS Integrado em Linux
+## Projeto_Diogo_Pascoal_GRSC_0925
 
-Este projecto apresenta scripts de Linux para a configuração e integração dos serviços **DHCP** (Dynamic Host Configuration Protocol) e **DNS** (Dynamic Name System).
+Este projecto apresenta scripts de Linux para a configuração e integração dos serviços **DHCP** e **DNS**.
 
 ---
 
@@ -9,7 +9,8 @@ Este projecto apresenta scripts de Linux para a configuração e integração do
     <img src="https://github.com/user-attachments/assets/4596ee1f-7e6b-4f74-998e-ea1398fd0651" alt="Vídeo demonstrando Kea DHCP e Bind DNS em acção" width="450"/>
     <br>
 </div>
-## Objectivos do Projecto
+
+##Objetivos do Projecto
 
 O principal objectivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
 
@@ -37,7 +38,7 @@ Siga estas instruções para a correcta implementação e validação do ambient
 
       
 
-      ### 1. Configuração de Rede (VM)
+      1. Configuração de Rede (VM)
 
       
 
@@ -49,7 +50,7 @@ Siga estas instruções para a correcta implementação e validação do ambient
 
       
 
-      ### 2. Execução de Scripts
+      **2**. Execução de Scripts
 
       
 
