@@ -5,11 +5,6 @@ Este projeto apresenta scripts de Linux para a configuração e integração dos
 
 ---
 
-<div align="center">
-    <img src="https://github.com/user-attachments/assets/4596ee1f-7e6b-4f74-998e-ea1398fd0651" alt="Vídeo demonstrando Kea DHCP e Bind DNS em acção" width="450"/>
-    <br>
-</div>
-
 O principal objetivo é implementar o DNS, garantindo a sincronização automática e em tempo real entre a concessão de IPs e o registo de nomes de (hosts).
 
 * **Automação:** Gestão automatizada de endereços IP via DHCP.
